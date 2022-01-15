@@ -1,5 +1,8 @@
 {
-  "name": "wordle-ionic",
-  "integrations": {},
+  "name": "wordle",
+  "integrations": {
+    "cordova": {},
+    "capacitor": {}
+  },
   "type": "angular"
 }

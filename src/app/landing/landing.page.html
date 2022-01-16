@@ -1,0 +1,18 @@
+<ion-content>
+  <div class="wrapper">
+    <div class="content">
+      <div class="greeting">Welcome to Wordle, <strong>{{userId}}</strong></div>
+      <ion-button
+        expand="block"
+        color="dark"
+        fill="outline"
+        (click)="onPlayOnline()"
+      >
+        Play Online
+      </ion-button>
+      <ion-button expand="block" color="dark" (click)="onPlaySolo()">
+        Play Solo
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

@@ -9,6 +9,7 @@ import { LetterComponent } from '../components/letter/letter.component';
 import { RowComponent } from '../components/row/row.component';
 import { KeyboardComponent } from '../components/keyboard/keyboard.component';
 import { HeaderComponent } from '../components/header/header.component';
+import { OpponentBoardComponent } from '../components/opponent-board/opponent-board.component';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, HomePageRoutingModule],
@@ -18,6 +19,7 @@ import { HeaderComponent } from '../components/header/header.component';
     RowComponent,
     KeyboardComponent,
     HeaderComponent,
+    OpponentBoardComponent,
   ],
 })
 export class HomePageModule {}

@@ -8,5 +8,11 @@
       [keys]="row"
       (keyClicked)="onClickKey($event)"
     ></app-keyboard>
+    <div *ngIf="opponentId">
+      <div style="text-align: center; font-size: 1.4rem; margin: 10px 0">
+        {{opponentId}}'s board
+      </div>
+      <app-opponent-board [rows]="opponentRows"></app-opponent-board>
+    </div>
   </div>
 </ion-content>

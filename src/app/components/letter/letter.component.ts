@@ -59,14 +59,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   ],
 })
 export class LetterComponent {
-  @Input('state') state: 'valid' | 'invalid' | 'mispositioned' | 'empty' =
-    'valid';
-  @Input('character') character: string = '';
+  @Input() state: 'valid' | 'invalid' | 'mispositioned' | 'empty' = 'valid';
+  @Input() character = '';
   @Input() isKey?: boolean = false;
   @Output() clicked: EventEmitter<string> = new EventEmitter();
 
   onClickKey(key: string) {
-    console.log('clicking');
     this.clicked.emit(key);
   }
 }

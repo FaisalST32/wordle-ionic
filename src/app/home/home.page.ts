@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 /* eslint-disable @typescript-eslint/prefer-for-of */
-import { Component, HostListener } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { Router } from '@angular/router';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { LetterType } from '../components/row/row.component';
+import { GameMode, GameService } from '../services/game.service';
 import { WordleService } from '../services/wordle.service';
 
 @Component({
@@ -14,19 +16,46 @@ export class HomePage {
   activeRowIndex = 0;
   activeColumnIndex = 0;
   rows: LetterType[][] = [];
+  opponentRows: LetterType[][] = [];
   gameOver = false;
+  hasGameStarted = false;
+  gameMode: GameMode;
+  opponentId: string;
   keys: LetterType[][] = generateInitialKeys();
-  private wordle = '';
+  loaderId;
+  // private wordle = '';
 
   constructor(
     private wordleService: WordleService,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private gameService: GameService,
+    private loadingCtrl: LoadingController,
+    private ref: ChangeDetectorRef,
+    private router: Router
   ) {
     this.initializeGame();
   }
 
-  initializeGame() {
-    this.wordle = this.wordleService.generateWordle();
+  async initializeGame() {
+    await this.showLoader('Loading Game...');
+    this.gameMode = this.gameService.getGameMode();
+    if (this.gameMode === GameMode.online) {
+      const newGame = await this.gameService.startNewOnlineGame();
+      const { opponentId } = newGame;
+      this.opponentId = opponentId;
+      this.hasGameStarted = true;
+      this.opponentRows = [
+        generateEmptyRow(),
+        generateEmptyRow(),
+        generateEmptyRow(),
+        generateEmptyRow(),
+        generateEmptyRow(),
+        generateEmptyRow(),
+      ];
+      this.pollOpponentStatus();
+    } else {
+      await this.gameService.startNewSoloGame();
+    }
     this.activeRowIndex = 0;
     this.activeColumnIndex = 0;
     this.keys = generateInitialKeys();
@@ -39,6 +68,7 @@ export class HomePage {
       generateEmptyRow(),
     ];
     this.gameOver = false;
+    this.hideLoader();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -49,13 +79,28 @@ export class HomePage {
     const keyPressed = event.key;
     const isAlphabetKey: boolean = new RegExp(/^[a-z]$/).test(keyPressed);
     if (isAlphabetKey && this.activeColumnIndex < 5) {
-      this.rows[this.activeRowIndex][this.activeColumnIndex].character =
-        event.key.toUpperCase();
-      this.activeColumnIndex++;
-      return;
+      return this.handleAlphabetKey(keyPressed);
     }
     const isEnterKey = keyPressed.toLowerCase() === 'enter';
     if (isEnterKey) {
+      return this.handleEnterKey();
+    }
+
+    const isBackspaceKey = keyPressed.toLowerCase() === 'backspace';
+    if (isBackspaceKey) {
+      return this.handleBackspaceKey();
+    }
+  }
+
+  private handleAlphabetKey(key: string) {
+    this.rows[this.activeRowIndex][this.activeColumnIndex].character =
+      key.toUpperCase();
+    this.activeColumnIndex++;
+    return;
+  }
+
+  private async handleEnterKey() {
+    try {
       const currentRow = this.rows[this.activeRowIndex];
       const isCurrentRowFilled = this.rows[this.activeRowIndex].every(
         (letter) => letter.character !== ''
@@ -67,36 +112,30 @@ export class HomePage {
       const word: string = currentRow
         .map((letter) => letter.character)
         .join('');
-      const isValidWord = await this.wordleService.checkIfWordExists(word);
-      if (!isValidWord) {
-        this.showAlert('invalid word try again');
-        return;
-      }
+      const rowResp = await this.gameService.postRow(word);
+      const updatedRow = this.createUpdatedRow(rowResp.data.rowResponse, word);
 
-      const updatedRow = this.validateLetters(currentRow, this.wordle);
       const hasWonGame: boolean = updatedRow.every(
         (letter) => letter.state === 'valid'
       );
       if (hasWonGame) {
-        const playAgain: boolean = await this.createConfirm(
-          'Yay! You have won. Play again?'
-        );
-        if (playAgain) {
-          this.initializeGame();
-        } else {
-          this.gameOver = true;
-        }
+        await this.showFinishAlert('Yay! You have won. Play again?');
+        // if (playAgain) {
+        //   this.initializeGame();
+        // } else {
+        //   this.gameOver = true;
+        // }
         return;
       }
       if (!hasWonGame && this.activeRowIndex === 5) {
-        const playAgain: boolean = await this.createConfirm(
-          `Sorry mate. The correct word was ${this.wordle}. Play again?`
+        await this.showFinishAlert(
+          `Sorry mate. The correct word was ${''}. Play again?`
         );
-        if (playAgain) {
-          this.initializeGame();
-        } else {
-          this.gameOver = true;
-        }
+        // if (playAgain) {
+        //   this.initializeGame();
+        // } else {
+        //   this.gameOver = true;
+        // }
         return;
       }
 
@@ -106,50 +145,59 @@ export class HomePage {
       this.activeRowIndex++;
       this.activeColumnIndex = 0;
       return;
+    } catch (err) {
+      this.showAlert(err.response.error);
     }
+  }
 
-    const isBackspaceKey = keyPressed.toLowerCase() === 'backspace';
-    if (isBackspaceKey) {
-      if (this.activeColumnIndex === 0) {
-        return;
-      }
-      this.activeColumnIndex--;
-      this.rows[this.activeRowIndex][this.activeColumnIndex].character = '';
+  private createUpdatedRow(
+    rowResponse: ('valid' | 'invalid' | 'mispositioned')[],
+    word: string
+  ): LetterType[] {
+    return rowResponse.map((state, i) => ({
+      state,
+      character: word[i],
+    }));
+  }
+
+  handleBackspaceKey() {
+    if (this.activeColumnIndex === 0) {
       return;
     }
+    this.activeColumnIndex--;
+    this.rows[this.activeRowIndex][this.activeColumnIndex].character = '';
+    return;
   }
 
   onClickKey(key: string) {
     this.onKeyUp({ key } as unknown as KeyboardEvent);
   }
 
-  validateLetters(rowToValidate: LetterType[], wordle: string): LetterType[] {
-    const wordleArray: string[] = wordle.split('');
-    const updatedRow: LetterType[] = [...rowToValidate];
-    for (let i = 0; i < updatedRow.length; i++) {
-      if (updatedRow[i].character === wordleArray[i]) {
-        updatedRow[i].state = 'valid';
-        wordleArray[i] = '0';
+  private pollOpponentStatus() {
+    const interval = setInterval(async () => {
+      const { gameStatus, playerStatuses, wordle } =
+        await this.gameService.getOpponentStatus(this.opponentId);
+      if (gameStatus === 'finished') {
+        this.gameOver = true;
+        this.showAlert(
+          'Opponent has won the game! The correct word was ' + wordle
+        );
+        clearInterval(interval);
       }
-    }
-    for (let i = 0; i < updatedRow.length; i++) {
-      if (
-        updatedRow[i].state === 'empty' &&
-        wordleArray.includes(updatedRow[i].character)
-      ) {
-        updatedRow[i].state = 'mispositioned';
-        wordleArray[wordleArray.indexOf(updatedRow[i].character)] = '0';
-      }
-    }
-    for (let i = 0; i < updatedRow.length; i++) {
-      if (updatedRow[i].state === 'empty') {
-        updatedRow[i].state = 'invalid';
-      }
-    }
-    return updatedRow;
+      this.opponentRows.forEach((row, i) => {
+        if (playerStatuses[i]) {
+          row.forEach((letter, j) => {
+            letter.state = playerStatuses[i][j];
+            letter.character = ' ';
+          });
+        }
+      });
+      this.ref.detectChanges();
+      console.log(this.opponentRows);
+    }, 3000);
   }
 
-  updateKeyboard(updatedRow: LetterType[]) {
+  private updateKeyboard(updatedRow: LetterType[]) {
     const newKeys = [...this.keys];
     for (let i = 0; i < this.keys.length; i++) {
       for (let j = 0; j < this.keys[i].length; j++) {
@@ -171,7 +219,7 @@ export class HomePage {
     return newKeys;
   }
 
-  async showAlert(message: string) {
+  private async showAlert(message: string) {
     const alert = await this.alertCtrl.create({
       message,
       buttons: [
@@ -184,7 +232,19 @@ export class HomePage {
     alert.present();
   }
 
-  createConfirm(message: string): Promise<boolean> {
+  private async showLoader(message: string) {
+    const loader = await this.loadingCtrl.create({
+      message,
+    });
+    this.loaderId = loader.id;
+    loader.present();
+  }
+
+  private async hideLoader() {
+    this.loadingCtrl.dismiss(this.loaderId);
+  }
+
+  private createConfirm(message: string): Promise<boolean> {
     return new Promise((res) => {
       const alert = this.alertCtrl.create({
         message,
@@ -201,6 +261,18 @@ export class HomePage {
       });
       alert.then((al) => al.present());
     });
+  }
+  private showFinishAlert(message: string) {
+    const alert = this.alertCtrl.create({
+      message,
+      buttons: [
+        {
+          text: 'Back Home',
+          handler: () => this.router.navigate(['/landing']),
+        },
+      ],
+    });
+    alert.then((al) => al.present());
   }
 }
 

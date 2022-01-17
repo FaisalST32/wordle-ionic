@@ -22,8 +22,8 @@ export class HomePage {
   gameMode: GameMode;
   opponentId: string;
   keys: LetterType[][] = generateInitialKeys();
-  loaderId;
-  // private wordle = '';
+  loaderId: string;
+  opponentPollingInterval: any;
 
   constructor(
     private wordleService: WordleService,
@@ -34,17 +34,51 @@ export class HomePage {
     private router: Router
   ) {
     this.initializeGame();
+    this.router.events.subscribe(() => {
+      if (this.loaderId) {
+        this.loadingCtrl.dismiss(this.loaderId);
+        this.loaderId = '';
+      }
+      if (this.opponentPollingInterval) {
+        clearInterval(this.opponentPollingInterval);
+        this.opponentPollingInterval = null;
+      }
+    });
   }
 
   async initializeGame() {
-    await this.showLoader('Loading Game...');
-    this.gameMode = this.gameService.getGameMode();
-    if (this.gameMode === GameMode.online) {
-      const newGame = await this.gameService.startNewOnlineGame();
-      const { opponentId } = newGame;
-      this.opponentId = opponentId;
-      this.hasGameStarted = true;
-      this.opponentRows = [
+    try {
+      this.gameMode = this.gameService.getGameMode();
+      console.log(this.gameMode);
+      if (!this.gameMode) {
+        this.router.navigate(['/landing']);
+      }
+      await this.showLoader(
+        this.gameMode === GameMode.solo
+          ? 'Loading Game...'
+          : 'Finding a game...'
+      );
+      if (this.gameMode === GameMode.online) {
+        const newGame = await this.gameService.startNewOnlineGame();
+        const { opponentId } = newGame;
+        this.opponentId = opponentId;
+        this.hasGameStarted = true;
+        this.opponentRows = [
+          generateEmptyRow(),
+          generateEmptyRow(),
+          generateEmptyRow(),
+          generateEmptyRow(),
+          generateEmptyRow(),
+          generateEmptyRow(),
+        ];
+        this.pollOpponentStatus();
+      } else {
+        await this.gameService.startNewSoloGame();
+      }
+      this.activeRowIndex = 0;
+      this.activeColumnIndex = 0;
+      this.keys = generateInitialKeys();
+      this.rows = [
         generateEmptyRow(),
         generateEmptyRow(),
         generateEmptyRow(),
@@ -52,23 +86,12 @@ export class HomePage {
         generateEmptyRow(),
         generateEmptyRow(),
       ];
-      this.pollOpponentStatus();
-    } else {
-      await this.gameService.startNewSoloGame();
+      this.gameOver = false;
+      this.hideLoader();
+    } catch (err) {
+      this.hideLoader();
+      this.showFinishAlert('Could find a game to join');
     }
-    this.activeRowIndex = 0;
-    this.activeColumnIndex = 0;
-    this.keys = generateInitialKeys();
-    this.rows = [
-      generateEmptyRow(),
-      generateEmptyRow(),
-      generateEmptyRow(),
-      generateEmptyRow(),
-      generateEmptyRow(),
-      generateEmptyRow(),
-    ];
-    this.gameOver = false;
-    this.hideLoader();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -129,7 +152,7 @@ export class HomePage {
       }
       if (!hasWonGame && this.activeRowIndex === 5) {
         await this.showFinishAlert(
-          `Sorry mate. The correct word was ${''}. Play again?`
+          `Sorry mate. You couldn't figure it out! Stick around to check if your opponent figures it out?`
         );
         // if (playAgain) {
         //   this.initializeGame();
@@ -174,15 +197,16 @@ export class HomePage {
   }
 
   private pollOpponentStatus() {
-    const interval = setInterval(async () => {
+    this.opponentPollingInterval = setInterval(async () => {
       const { gameStatus, playerStatuses, wordle } =
         await this.gameService.getOpponentStatus(this.opponentId);
-      if (gameStatus === 'finished') {
+      if (gameStatus === 'finished' && wordle) {
         this.gameOver = true;
         this.showAlert(
           'Opponent has won the game! The correct word was ' + wordle
         );
-        clearInterval(interval);
+        clearInterval(this.opponentPollingInterval);
+        this.opponentPollingInterval = null;
       }
       this.opponentRows.forEach((row, i) => {
         if (playerStatuses[i]) {
@@ -241,7 +265,10 @@ export class HomePage {
   }
 
   private async hideLoader() {
-    this.loadingCtrl.dismiss(this.loaderId);
+    if (this.loaderId) {
+      this.loadingCtrl.dismiss(this.loaderId);
+      this.loaderId = '';
+    }
   }
 
   private createConfirm(message: string): Promise<boolean> {

@@ -57,6 +57,6 @@ export class GameService {
 }
 
 export enum GameMode {
-  online,
+  online = 1,
   solo,
 }

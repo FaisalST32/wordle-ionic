@@ -38,14 +38,21 @@ export class GameService {
     return this.gameMode;
   }
 
-  postRow(row: string) {
-    const userId = this.userService.getCurrentUserId();
-    const rowData = {
-      gameId: this.gameId,
-      playerName: userId,
-      word: row,
-    };
-    return axios.post('play/row', rowData);
+  async postRow(row: string) {
+    try {
+      const userId = this.userService.getCurrentUserId();
+      const rowData = {
+        gameId: this.gameId,
+        playerName: userId,
+        word: row,
+      };
+      const resp = await axios.post('play/row', rowData);
+      return resp;
+    } catch (err) {
+      throw new Error(
+        err?.response?.data?.error || 'Something happened. Please try again!'
+      );
+    }
   }
 
   async getOpponentStatus(opponentId: string) {
@@ -53,6 +60,11 @@ export class GameService {
       `games/game/${this.gameId}/status/${opponentId}`
     );
     return statusData.data;
+  }
+
+  async getCurrentWordle(): Promise<string> {
+    const statusData = await axios.get(`games/game/${this.gameId}/wordle`);
+    return statusData.data.wordle;
   }
 }
 

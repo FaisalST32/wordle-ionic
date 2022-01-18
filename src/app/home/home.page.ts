@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 /* eslint-disable @typescript-eslint/prefer-for-of */
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  OnDestroy,
+} from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { LetterType } from '../components/row/row.component';
 import { GameMode, GameService } from '../services/game.service';
@@ -12,7 +17,7 @@ import { WordleService } from '../services/wordle.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnDestroy {
   activeRowIndex = 0;
   activeColumnIndex = 0;
   rows: LetterType[][] = [];
@@ -24,6 +29,7 @@ export class HomePage {
   keys: LetterType[][] = generateInitialKeys();
   loaderId: string;
   opponentPollingInterval: any;
+  areKeysEnabled = false;
 
   constructor(
     private wordleService: WordleService,
@@ -34,14 +40,17 @@ export class HomePage {
     private router: Router
   ) {
     this.initializeGame();
-    this.router.events.subscribe(() => {
-      if (this.loaderId) {
-        this.loadingCtrl.dismiss(this.loaderId);
-        this.loaderId = '';
-      }
-      if (this.opponentPollingInterval) {
-        clearInterval(this.opponentPollingInterval);
-        this.opponentPollingInterval = null;
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.resetGame();
+        if (this.loaderId) {
+          this.loadingCtrl.dismiss(this.loaderId);
+          this.loaderId = '';
+        }
+        if (this.opponentPollingInterval) {
+          clearInterval(this.opponentPollingInterval);
+          this.opponentPollingInterval = null;
+        }
       }
     });
   }
@@ -87,6 +96,7 @@ export class HomePage {
         generateEmptyRow(),
       ];
       this.gameOver = false;
+      this.enableKeys();
       this.hideLoader();
     } catch (err) {
       this.hideLoader();
@@ -94,9 +104,34 @@ export class HomePage {
     }
   }
 
+  resetGame() {
+    this.opponentRows = [
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+    ];
+    this.activeRowIndex = 0;
+    this.activeColumnIndex = 0;
+    this.keys = generateInitialKeys();
+    this.rows = [
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+    ];
+    this.gameOver = false;
+    this.enableKeys();
+    this.hideLoader();
+  }
+
   @HostListener('document:keydown', ['$event'])
   async onKeyUp(event: KeyboardEvent) {
-    if (this.gameOver) {
+    if (this.gameOver || !this.areKeysEnabled) {
       return;
     }
     const keyPressed = event.key;
@@ -124,11 +159,13 @@ export class HomePage {
 
   private async handleEnterKey() {
     try {
+      this.disableKeys();
       const currentRow = this.rows[this.activeRowIndex];
       const isCurrentRowFilled = this.rows[this.activeRowIndex].every(
         (letter) => letter.character !== ''
       );
       if (!isCurrentRowFilled) {
+        this.enableKeys();
         return;
       }
 
@@ -143,22 +180,21 @@ export class HomePage {
       );
       if (hasWonGame) {
         await this.showFinishAlert('Yay! You have won. Play again?');
-        // if (playAgain) {
-        //   this.initializeGame();
-        // } else {
-        //   this.gameOver = true;
-        // }
+
         return;
       }
       if (!hasWonGame && this.activeRowIndex === 5) {
-        await this.showFinishAlert(
-          `Sorry mate. You couldn't figure it out! Stick around to check if your opponent figures it out?`
-        );
-        // if (playAgain) {
-        //   this.initializeGame();
-        // } else {
-        //   this.gameOver = true;
-        // }
+        if (this.gameMode === GameMode.solo) {
+          const wordle: string = await this.gameService.getCurrentWordle();
+          await this.showFinishAlert(
+            `Tough luck! The correct wordle was ${wordle}`
+          );
+        } else {
+          await this.showFinishAlert(
+            `Sorry mate. You couldn't figure it out! Stick around to check if your opponent figures it out?`
+          );
+        }
+
         return;
       }
 
@@ -167,9 +203,10 @@ export class HomePage {
 
       this.activeRowIndex++;
       this.activeColumnIndex = 0;
+      this.enableKeys();
       return;
     } catch (err) {
-      this.showAlert(err.response.error);
+      this.showAlert(err.message);
     }
   }
 
@@ -184,6 +221,7 @@ export class HomePage {
   }
 
   handleBackspaceKey() {
+    this.enableKeys();
     if (this.activeColumnIndex === 0) {
       return;
     }
@@ -243,6 +281,14 @@ export class HomePage {
     return newKeys;
   }
 
+  enableKeys() {
+    this.areKeysEnabled = true;
+  }
+
+  disableKeys() {
+    this.areKeysEnabled = false;
+  }
+
   private async showAlert(message: string) {
     const alert = await this.alertCtrl.create({
       message,
@@ -250,6 +296,7 @@ export class HomePage {
         {
           text: 'Okay',
           role: 'cancel',
+          handler: this.enableKeys.bind(this),
         },
       ],
     });
@@ -300,6 +347,11 @@ export class HomePage {
       ],
     });
     alert.then((al) => al.present());
+  }
+
+  @HostListener('unloaded')
+  ngOnDestroy() {
+    console.log('Cleared');
   }
 }
 

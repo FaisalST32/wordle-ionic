@@ -240,7 +240,7 @@ export class HomePage implements OnDestroy {
         await this.gameService.getOpponentStatus(this.opponentId);
       if (gameStatus === 'finished' && wordle) {
         this.gameOver = true;
-        this.showAlert(
+        this.showFinishAlert(
           'Opponent has won the game! The correct word was ' + wordle
         );
         clearInterval(this.opponentPollingInterval);

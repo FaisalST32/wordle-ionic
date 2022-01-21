@@ -51,6 +51,7 @@ export class HomePage implements OnDestroy {
           clearInterval(this.opponentPollingInterval);
           this.opponentPollingInterval = null;
         }
+        this.gameOver = true;
       }
     });
   }
@@ -100,7 +101,9 @@ export class HomePage implements OnDestroy {
       this.hideLoader();
     } catch (err) {
       this.hideLoader();
-      this.showFinishAlert('Could find a game to join');
+      if (!this.gameOver) {
+        this.showFinishAlert('Could not find a game to join');
+      }
     }
   }
 

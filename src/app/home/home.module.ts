@@ -5,19 +5,22 @@ import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 
 import { HomePageRoutingModule } from './home-routing.module';
-import { LetterComponent } from '../components/letter/letter.component';
-import { RowComponent } from '../components/row/row.component';
 import { KeyboardComponent } from '../components/keyboard/keyboard.component';
 import { HeaderComponent } from '../components/header/header.component';
 import { OpponentBoardComponent } from '../components/opponent-board/opponent-board.component';
 import { RulesModalComponent } from '../components/rules/rules.component';
+import { SharedModule } from '../shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, HomePageRoutingModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    HomePageRoutingModule,
+    SharedModule,
+  ],
   declarations: [
     HomePage,
-    LetterComponent,
-    RowComponent,
     KeyboardComponent,
     HeaderComponent,
     OpponentBoardComponent,

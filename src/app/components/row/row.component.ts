@@ -11,5 +11,7 @@ export class RowComponent {
 
 export type LetterType = {
   character: string;
-  state: 'valid' | 'invalid' | 'mispositioned' | 'empty';
+  state: LetterStates;
 };
+
+export type LetterStates = 'valid' | 'invalid' | 'mispositioned' | 'empty';

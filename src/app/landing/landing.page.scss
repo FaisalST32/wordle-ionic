@@ -1,6 +1,21 @@
+.user {
+  text-align: center;
+  margin: 20px;
+  font-weight: lighter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  span {
+    font-size: 1.2rem;
+    display: inline-block;
+    margin: 0 10px;
+  }
+}
+
 .greeting {
   font-size: 1.5rem;
-  margin: 20px 0;
+  margin: 60px 0 80px 0;
+  // transform: scale(0.8);
 }
 
 .wrapper {
@@ -9,5 +24,5 @@
   height: 90%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }

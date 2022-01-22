@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { LetterStates } from '../row/row.component';
 
 @Component({
   selector: 'app-letter',
@@ -20,6 +21,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         font-family: sans-serif;
         font-weight: bold;
         border: solid #ccc 1px;
+        transition: all 200ms ease-out;
       }
     `,
     `
@@ -50,7 +52,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         /* min-width: 10px; */
         width: auto;
         height: 40px;
-        /* padding: 0px 7px; */
+        transition: none;
       }
       .key:active {
         background-color: lightgray;
@@ -59,7 +61,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   ],
 })
 export class LetterComponent {
-  @Input() state: 'valid' | 'invalid' | 'mispositioned' | 'empty' = 'valid';
+  @Input() state: LetterStates = 'valid';
   @Input() character = '';
   @Input() isKey?: boolean = false;
   @Output() clicked: EventEmitter<string> = new EventEmitter();

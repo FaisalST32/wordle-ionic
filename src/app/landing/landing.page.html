@@ -1,7 +1,14 @@
 <ion-content>
+  <div class="user">
+    <ion-icon name="person-circle-outline" size="large"></ion-icon
+    ><span>{{userId}}</span>
+  </div>
   <div class="wrapper">
     <div class="content">
-      <div class="greeting">Welcome to Wordle, <strong>{{userId}}</strong></div>
+      <div class="greeting">
+        <app-row [letters]="titleRows[0]"></app-row>
+        <app-row [letters]="titleRows[1]"></app-row>
+      </div>
       <ion-button
         expand="block"
         color="dark"

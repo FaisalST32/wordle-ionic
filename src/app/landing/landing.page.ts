@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { LetterStates, LetterType } from '../components/row/row.component';
 import { RulesModalComponent } from '../components/rules/rules.component';
 import { GameMode, GameService } from '../services/game.service';
 import { UserService } from '../services/user.service';
@@ -13,6 +14,25 @@ import { UserService } from '../services/user.service';
 export class LandingPage {
   userId = '';
 
+  titleRows: LetterType[][] = [
+    [
+      { character: 'W', state: 'empty' },
+      { character: 'O', state: 'empty' },
+      { character: 'R', state: 'empty' },
+      { character: 'D', state: 'empty' },
+      { character: 'L', state: 'empty' },
+      { character: 'E', state: 'empty' },
+    ],
+    [
+      { character: 'O', state: 'empty' },
+      { character: 'N', state: 'empty' },
+      { character: 'L', state: 'empty' },
+      { character: 'I', state: 'empty' },
+      { character: 'N', state: 'empty' },
+      { character: 'E', state: 'empty' },
+    ],
+  ];
+
   constructor(
     private userService: UserService,
     private gameService: GameService,
@@ -20,6 +40,7 @@ export class LandingPage {
     private modalController: ModalController
   ) {
     this.userId = userService.getCurrentUserId();
+    this.animateButtons();
   }
 
   onPlayOnline() {
@@ -43,5 +64,21 @@ export class LandingPage {
       },
     });
     return await modal.present();
+  }
+
+  animateButtons() {
+    const states: LetterStates[] = [
+      'empty',
+      'invalid',
+      'mispositioned',
+      'valid',
+    ];
+    setInterval(() => {
+      const randomState: LetterStates =
+        states[Math.floor(Math.random() * states.length)];
+      const randomRow = Math.floor(Math.random() * 2);
+      const randomCol = Math.floor(Math.random() * 6);
+      this.titleRows[randomRow][randomCol].state = randomState;
+    }, 200);
   }
 }

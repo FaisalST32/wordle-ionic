@@ -44,11 +44,12 @@ export class LandingPage {
   }
 
   onPlayOnline() {
-    this.gameService.setGameMode(GameMode.online);
-    this.router.navigate(['/game']);
+    // this.gameService.setGameMode(GameMode.online);
+    this.router.navigate(['/online']);
   }
 
   onPlaySolo() {
+    this.gameService.setGameCode('');
     this.gameService.setGameMode(GameMode.solo);
     this.router.navigate(['/game']);
   }

@@ -8,9 +8,10 @@ import {
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AlertController, LoadingController } from '@ionic/angular';
-import { LetterType } from '../components/row/row.component';
+import { LetterStates, LetterType } from '../components/row/row.component';
 import { GameMode, GameService } from '../services/game.service';
 import { WordleService } from '../services/wordle.service';
+import { generateEmptyRow, generateInitialKeys } from '../utils/data.utils';
 
 @Component({
   selector: 'app-home',
@@ -59,7 +60,6 @@ export class HomePage implements OnDestroy {
   async initializeGame() {
     try {
       this.gameMode = this.gameService.getGameMode();
-      console.log(this.gameMode);
       if (!this.gameMode) {
         this.router.navigate(['/landing']);
       }
@@ -68,42 +68,65 @@ export class HomePage implements OnDestroy {
           ? 'Loading Game...'
           : 'Finding a game...'
       );
-      if (this.gameMode === GameMode.online) {
-        const newGame = await this.gameService.startNewOnlineGame();
-        const { opponentId } = newGame;
+      const newGame = await this.gameService.startGame();
+      const { opponentId, moves, opponentMoves } = newGame;
+      this.setInitialRows(moves);
+      if (opponentId) {
         this.opponentId = opponentId;
         this.hasGameStarted = true;
-        this.opponentRows = [
-          generateEmptyRow(),
-          generateEmptyRow(),
-          generateEmptyRow(),
-          generateEmptyRow(),
-          generateEmptyRow(),
-          generateEmptyRow(),
-        ];
+        this.setOpponentRows(opponentMoves);
         this.pollOpponentStatus();
-      } else {
-        await this.gameService.startNewSoloGame();
       }
+
       this.activeRowIndex = 0;
       this.activeColumnIndex = 0;
       this.keys = generateInitialKeys();
-      this.rows = [
-        generateEmptyRow(),
-        generateEmptyRow(),
-        generateEmptyRow(),
-        generateEmptyRow(),
-        generateEmptyRow(),
-        generateEmptyRow(),
-      ];
       this.gameOver = false;
       this.enableKeys();
       this.hideLoader();
     } catch (err) {
       this.hideLoader();
-      if (!this.gameOver) {
-        this.showFinishAlert('Could not find a game to join');
+      if (this.router.isActive) {
+        this.showFinishAlert(err.message);
       }
+    }
+  }
+  private setOpponentRows(
+    opponentMoves?: LetterStates[][],
+    currentRows?: LetterType[][]
+  ) {
+    this.opponentRows = currentRows || [
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+    ];
+    if (opponentMoves?.length) {
+      this.opponentRows.forEach((row, i) => {
+        if (opponentMoves[i]) {
+          row.forEach((letter, j) => {
+            letter.state = opponentMoves[i][j];
+            letter.character = ' ';
+          });
+        }
+      });
+    }
+  }
+  private setInitialRows(moves?: LetterType[][]) {
+    this.rows = [
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+      generateEmptyRow(),
+    ];
+    if (moves?.length) {
+      moves.forEach((move: LetterType[], index: number) => {
+        this.rows[index] = move;
+      });
     }
   }
 
@@ -249,14 +272,7 @@ export class HomePage implements OnDestroy {
         clearInterval(this.opponentPollingInterval);
         this.opponentPollingInterval = null;
       }
-      this.opponentRows.forEach((row, i) => {
-        if (playerStatuses[i]) {
-          row.forEach((letter, j) => {
-            letter.state = playerStatuses[i][j];
-            letter.character = ' ';
-          });
-        }
-      });
+      this.setOpponentRows(playerStatuses, this.opponentRows);
       this.ref.detectChanges();
       console.log(this.opponentRows);
     }, 3000);
@@ -357,40 +373,3 @@ export class HomePage implements OnDestroy {
     console.log('Cleared');
   }
 }
-
-const generateEmptyRow = (): LetterType[] => [
-  {
-    character: '',
-    state: 'empty',
-  },
-  {
-    character: '',
-    state: 'empty',
-  },
-  {
-    character: '',
-    state: 'empty',
-  },
-  {
-    character: '',
-    state: 'empty',
-  },
-  {
-    character: '',
-    state: 'empty',
-  },
-];
-
-const generateInitialKeys = (): LetterType[][] => {
-  const keyRows = [
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'Enter'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace'],
-  ];
-  return keyRows.map((row) =>
-    row.map((key) => ({
-      character: key,
-      state: 'empty',
-    }))
-  );
-};

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { OnlineSelectorPage } from './online-selector/online-selector.page';
 
 const routes: Routes = [
   {
@@ -11,6 +12,10 @@ const routes: Routes = [
     path: 'landing',
     loadChildren: () =>
       import('./landing/landing.module').then((m) => m.LandingPageModule),
+  },
+  {
+    path: 'online',
+    component: OnlineSelectorPage,
   },
   {
     path: '',

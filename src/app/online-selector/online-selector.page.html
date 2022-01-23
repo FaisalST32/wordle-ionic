@@ -1,0 +1,61 @@
+<ion-content>
+  <div class="wrapper">
+    <div class="content">
+      <ng-container *ngIf="!isEnteringGameCode && !isCreatingGame">
+        <ion-button expand="block" color="dark" (click)="onEnterGameCode()">
+          Enter Game Code
+        </ion-button>
+        <ion-button
+          fill="outline"
+          expand="block"
+          color="dark"
+          (click)="onCreateNewGame()"
+        >
+          Create New Game
+        </ion-button>
+        <ion-button
+          expand="block"
+          color="dark"
+          color="primary"
+          (click)="onJoinAnyGame()"
+        >
+          Join an available Game
+        </ion-button>
+        <ion-button
+          fill="transparent"
+          expand="block"
+          color="dark"
+          (click)="onGoBack()"
+        >
+          Back
+        </ion-button>
+      </ng-container>
+      <div *ngIf="isEnteringGameCode || isCreatingGame">
+        <div *ngIf="!isCreatingGame" class="centered">Enter Game Code</div>
+        <div *ngIf="isCreatingGame" class="centered">
+          Your Game Code is ready
+        </div>
+        <app-row [letters]="gameCodeRow" style="position: relative"></app-row>
+        <ion-input
+          (keyup)="onChangeCode($event)"
+          #codeInput
+          [pattern]="'^[a-zA-Z]$'"
+          [disabled]="isCreatingGame"
+        ></ion-input>
+        <div class="row-buttons">
+          <ion-button
+            expand="block"
+            color="dark"
+            fill="outline"
+            (click)="onCancel()"
+          >
+            {{isCreatingGame ? 'Play Later' : 'Cancel'}}
+          </ion-button>
+          <ion-button expand="block" color="dark" (click)="onConfirmGameCode()">
+            Start Game
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

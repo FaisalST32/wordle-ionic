@@ -16,20 +16,20 @@ export class LandingPage {
 
   titleRows: LetterType[][] = [
     [
-      { character: 'W', state: 'empty' },
-      { character: 'O', state: 'empty' },
-      { character: 'R', state: 'empty' },
-      { character: 'D', state: 'empty' },
-      { character: 'L', state: 'empty' },
-      { character: 'E', state: 'empty' },
+      { character: 'W', state: 'valid' },
+      { character: 'O', state: 'invalid' },
+      { character: 'R', state: 'mispositioned' },
+      { character: 'D', state: 'valid' },
+      { character: 'L', state: 'invalid' },
+      { character: 'E', state: 'mispositioned' },
     ],
     [
-      { character: 'O', state: 'empty' },
-      { character: 'N', state: 'empty' },
-      { character: 'L', state: 'empty' },
-      { character: 'I', state: 'empty' },
-      { character: 'N', state: 'empty' },
-      { character: 'E', state: 'empty' },
+      { character: 'O', state: 'mispositioned' },
+      { character: 'N', state: 'valid' },
+      { character: 'L', state: 'invalid' },
+      { character: 'I', state: 'mispositioned' },
+      { character: 'N', state: 'valid' },
+      { character: 'E', state: 'invalid' },
     ],
   ];
 
@@ -40,7 +40,7 @@ export class LandingPage {
     private modalController: ModalController
   ) {
     this.userId = userService.getCurrentUserId();
-    this.animateButtons();
+    // this.animateButtons();
   }
 
   onPlayOnline() {

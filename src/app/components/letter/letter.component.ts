@@ -4,7 +4,12 @@ import { LetterStates } from '../row/row.component';
 @Component({
   selector: 'app-letter',
   template: `
-    <div [class]="state" [class.key]="isKey" (click)="onClickKey(character)">
+    <div
+      [class]="state"
+      [class.key]="isKey"
+      [class.tile]="true"
+      (click)="onClickKey(character)"
+    >
       {{ character }}
     </div>
   `,
@@ -23,28 +28,18 @@ import { LetterStates } from '../row/row.component';
         border: solid #ccc 1px;
         transition: all 200ms ease-out;
       }
-    `,
-    `
       .valid {
         background-color: green;
       }
-    `,
-    `
       .invalid {
         background-color: gray;
       }
-    `,
-    `
       .mispositioned {
         background-color: #b59f3b;
       }
-    `,
-    `
       .empty {
         /* background-color: #000; */
       }
-    `,
-    `
       .key {
         font-size: 14px;
         border-radius: 5px;

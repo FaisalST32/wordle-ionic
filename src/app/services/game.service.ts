@@ -118,7 +118,7 @@ export class GameService {
       const userId = this.userService.getCurrentUserId();
       const joinGameData = {
         userId,
-        gameCode,
+        gameCode: gameCode.toUpperCase(),
       };
       const gameData = await axios.post('games/join-with-code', joinGameData);
       this.gameId = gameData.data.gameId;

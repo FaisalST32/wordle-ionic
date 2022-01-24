@@ -42,10 +42,12 @@ import { LetterType } from '../row/row.component';
     `
       .root {
         padding: 20px;
+        color: white;
       }
       p {
         margin: 20px 0;
         font-size: 1rem;
+        color: white;
       }
       ion-button {
         position: absolute;

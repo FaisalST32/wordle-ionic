@@ -1,6 +1,0 @@
-{
-	"appId": "com.wordlefr.app",
-	"appName": "wordle",
-	"webDir": "www",
-	"bundledWebRuntime": false
-}

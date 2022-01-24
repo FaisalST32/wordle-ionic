@@ -61,6 +61,7 @@ export class OnlineSelectorPage {
     this.gameCode = '';
     this.isEnteringGameCode = false;
     this.isCreatingGame = false;
+    this.gameCodeRow = generateEmptyRow();
   }
   onConfirmGameCode() {
     this.gameService.setGameCode(this.gameCode);

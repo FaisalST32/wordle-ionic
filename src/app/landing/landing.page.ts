@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { LetterStates, LetterType } from '../components/row/row.component';
 import { RulesModalComponent } from '../components/rules/rules.component';
 import { GameMode, GameService } from '../services/game.service';
@@ -13,6 +13,8 @@ import { UserService } from '../services/user.service';
 })
 export class LandingPage {
   userId = '';
+
+  isApp: boolean;
 
   titleRows: LetterType[][] = [
     [
@@ -37,10 +39,12 @@ export class LandingPage {
     private userService: UserService,
     private gameService: GameService,
     private router: Router,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private platform: Platform
   ) {
     this.userId = userService.getCurrentUserId();
     // this.animateButtons();
+    this.isApp = this.platform.is('ios') || this.platform.is('android');
   }
 
   onPlayOnline() {

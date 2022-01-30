@@ -7,7 +7,12 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { AlertController, LoadingController } from '@ionic/angular';
+import {
+  AlertButton,
+  AlertController,
+  LoadingController,
+  ToastController,
+} from '@ionic/angular';
 import { LetterStates, LetterType } from '../components/row/row.component';
 import { GameMode, GameService } from '../services/game.service';
 import { WordleService } from '../services/wordle.service';
@@ -38,7 +43,8 @@ export class HomePage implements OnDestroy {
     private gameService: GameService,
     private loadingCtrl: LoadingController,
     private ref: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private toastCtrl: ToastController
   ) {
     this.initializeGame();
     this.router.events.subscribe((event) => {
@@ -87,7 +93,7 @@ export class HomePage implements OnDestroy {
     } catch (err) {
       this.hideLoader();
       if (this.router.isActive) {
-        this.showFinishAlert(err.message);
+        this.showFinishAlert(err.message, false);
       }
     }
   }
@@ -204,28 +210,28 @@ export class HomePage implements OnDestroy {
       const hasWonGame: boolean = updatedRow.every(
         (letter) => letter.state === 'valid'
       );
+      this.rows[this.activeRowIndex] = [...updatedRow];
+      this.keys = [...this.updateKeyboard(updatedRow)];
       if (hasWonGame) {
-        await this.showFinishAlert('Yay! You have won. Play again?');
-
+        await this.showFinishAlert('Yay! You have won.', true);
         return;
       }
       if (!hasWonGame && this.activeRowIndex === 5) {
         if (this.gameMode === GameMode.solo) {
           const wordle: string = await this.gameService.getCurrentWordle();
           await this.showFinishAlert(
-            `Tough luck! The correct wordle was ${wordle}`
+            `Tough luck! The correct wordle was ${wordle}`,
+            true
           );
         } else {
           await this.showFinishAlert(
-            `Sorry mate. You couldn't figure it out! Stick around to check if your opponent figures it out?`
+            `Sorry mate. You couldn't figure it out! Stick around to check if your opponent figures it out?`,
+            true
           );
         }
 
         return;
       }
-
-      this.rows[this.activeRowIndex] = [...updatedRow];
-      this.keys = [...this.updateKeyboard(updatedRow)];
 
       this.activeRowIndex++;
       this.activeColumnIndex = 0;
@@ -267,7 +273,8 @@ export class HomePage implements OnDestroy {
       if (gameStatus === 'finished' && wordle) {
         this.gameOver = true;
         this.showFinishAlert(
-          'Opponent has won the game! The correct word was ' + wordle
+          'Opponent has won the game! The correct word was ' + wordle,
+          true
         );
         clearInterval(this.opponentPollingInterval);
         this.opponentPollingInterval = null;
@@ -337,6 +344,31 @@ export class HomePage implements OnDestroy {
     }
   }
 
+  private shareGame() {
+    if (!this.rows) {
+      return;
+    }
+    const map: Partial<Record<LetterStates, string>> = {
+      invalid: '⬛',
+      valid: '🟩',
+      mispositioned: '🟨',
+    };
+    let shareableText = 'wordler.faisalrashid.tech \n\n';
+    shareableText += this.rows
+      .filter((row) => !row.some((l) => l.state === 'empty'))
+      .map((row) => row.map((l) => map[l.state]).join(''))
+      .join('\n');
+    window.navigator.clipboard.writeText(shareableText).then(() => {
+      this.toastCtrl
+        .create({
+          message: 'Copied results to clipboard',
+          duration: 2000,
+        })
+        .then((toast) => toast.present());
+    });
+    return false;
+  }
+
   private createConfirm(message: string): Promise<boolean> {
     return new Promise((res) => {
       const alert = this.alertCtrl.create({
@@ -355,15 +387,22 @@ export class HomePage implements OnDestroy {
       alert.then((al) => al.present());
     });
   }
-  private showFinishAlert(message: string) {
+  private showFinishAlert(message: string, showShareButton: boolean) {
+    const buttons: AlertButton[] = [
+      {
+        text: 'Back Home',
+        handler: () => this.router.navigate(['/landing']),
+      },
+    ];
+    if (showShareButton) {
+      buttons.push({
+        text: 'Share',
+        handler: this.shareGame.bind(this),
+      });
+    }
     const alert = this.alertCtrl.create({
       message,
-      buttons: [
-        {
-          text: 'Back Home',
-          handler: () => this.router.navigate(['/landing']),
-        },
-      ],
+      buttons,
     });
     alert.then((al) => al.present());
   }

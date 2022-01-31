@@ -1,8 +1,7 @@
 {
   "name": "wordle",
   "integrations": {
-    "cordova": {},
-    "capacitor": {}
+    "cordova": {}
   },
   "type": "angular"
 }

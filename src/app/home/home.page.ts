@@ -17,6 +17,8 @@ import { LetterStates, LetterType } from '../components/row/row.component';
 import { GameMode, GameService } from '../services/game.service';
 import { WordleService } from '../services/wordle.service';
 import { generateEmptyRow, generateInitialKeys } from '../utils/data.utils';
+import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
+import { isRunningApp } from '../utils/ionic.utils';
 
 @Component({
   selector: 'app-home',
@@ -36,6 +38,7 @@ export class HomePage implements OnDestroy {
   loaderId: string;
   opponentPollingInterval: any;
   areKeysEnabled = false;
+  isApp: boolean;
 
   constructor(
     private wordleService: WordleService,
@@ -44,7 +47,8 @@ export class HomePage implements OnDestroy {
     private loadingCtrl: LoadingController,
     private ref: ChangeDetectorRef,
     private router: Router,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private clipboard: Clipboard
   ) {
     this.initializeGame();
     this.router.events.subscribe((event) => {
@@ -61,6 +65,7 @@ export class HomePage implements OnDestroy {
         this.gameOver = true;
       }
     });
+    this.isApp = isRunningApp();
   }
 
   async initializeGame() {
@@ -354,18 +359,26 @@ export class HomePage implements OnDestroy {
       mispositioned: '🟨',
     };
     let shareableText = 'wordler.faisalrashid.tech \n\n';
+    if (this.opponentId) {
+      shareableText += `vs ${this.opponentId} \n\n`;
+    }
     shareableText += this.rows
       .filter((row) => !row.some((l) => l.state === 'empty'))
       .map((row) => row.map((l) => map[l.state]).join(''))
       .join('\n');
-    window.navigator.clipboard.writeText(shareableText).then(() => {
-      this.toastCtrl
-        .create({
-          message: 'Copied results to clipboard',
-          duration: 2000,
-        })
-        .then((toast) => toast.present());
-    });
+    if (this.isApp) {
+      this.clipboard.copy(shareableText);
+    } else {
+      window.navigator.clipboard.writeText(shareableText).then(() => {
+        this.toastCtrl
+          .create({
+            message: 'Copied results to clipboard',
+            duration: 2000,
+          })
+          .then((toast) => toast.present());
+      });
+    }
+
     return false;
   }
 

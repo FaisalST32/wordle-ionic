@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="3" id="tech.faisalrashid.wordle" version="0.0.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="4" id="tech.faisalrashid.wordle" version="0.0.4" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Wordle Online</name>
     <description>Play the popular wordle game with your friends</description>
     <author email="faisalrashid@live.in" href="https://www.faisalrashid.tech">Faisal Rashid</author>
@@ -17,6 +17,7 @@
     <preference name="FadeSplashScreenDuration" value="300" />
     <preference name="SplashShowOnlyFirstTime" value="false" />
     <preference name="SplashScreen" value="screen" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="SplashScreenDelay" value="3000" />
     <platform name="android">
         <preference name="Scheme" value="http" />

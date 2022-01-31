@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './shared.module';
 import { OnlineSelectorPage } from './online-selector/online-selector.page';
 import { FormsModule } from '@angular/forms';
+import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
 
 @NgModule({
   declarations: [AppComponent, OnlineSelectorPage],
@@ -20,7 +21,10 @@ import { FormsModule } from '@angular/forms';
     SharedModule,
     FormsModule,
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    Clipboard,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

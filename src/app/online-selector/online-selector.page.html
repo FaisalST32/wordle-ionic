@@ -48,9 +48,19 @@
             expand="block"
             color="dark"
             fill="outline"
+            *ngIf="!isCreatingGame"
             (click)="onCancel()"
           >
-            {{isCreatingGame ? 'Play Later' : 'Cancel'}}
+            Cancel
+          </ion-button>
+          <ion-button
+            expand="block"
+            color="dark"
+            fill="outline"
+            *ngIf="isCreatingGame"
+            (click)="shareCode()"
+          >
+            Share
           </ion-button>
           <ion-button expand="block" color="dark" (click)="onConfirmGameCode()">
             Start Game

@@ -1,9 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { IonInput, LoadingController } from '@ionic/angular';
+import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
+import { IonInput, LoadingController, ToastController } from '@ionic/angular';
 import { LetterType } from '../components/row/row.component';
 import { GameMode, GameService } from '../services/game.service';
 import { generateEmptyRow } from '../utils/data.utils';
+import { isRunningApp } from '../utils/ionic.utils';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 
 @Component({
   templateUrl: './online-selector.page.html',
@@ -15,12 +18,17 @@ export class OnlineSelectorPage {
   isCreatingGame = false;
   gameCodeRow: LetterType[] = generateEmptyRow();
   gameCode: string;
+  isApp: boolean;
 
   constructor(
     private gameService: GameService,
     private router: Router,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private clipboard: Clipboard,
+    private socialShare: SocialSharing,
+    private toastCtrl: ToastController
   ) {
+    this.isApp = isRunningApp();
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) {
         this.onCancel();
@@ -101,5 +109,24 @@ export class OnlineSelectorPage {
       }
       letter.character = this.gameCode[i].toUpperCase();
     });
+  }
+
+  shareCode() {
+    const shareText = `Can you beat me at a game of Wordle?
+Join now at https://wordler.faisalrashid.tech/join/${this.gameCode.toUpperCase()}
+code: ${this.gameCode.toUpperCase()}`;
+
+    if (this.isApp) {
+      this.socialShare.share(shareText);
+    } else {
+      window.navigator.clipboard.writeText(shareText).then(() => {
+        this.toastCtrl
+          .create({
+            message: 'Copied to clipboard',
+            duration: 2000,
+          })
+          .then((toast) => toast.present());
+      });
+    }
   }
 }

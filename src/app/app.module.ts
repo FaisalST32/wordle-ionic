@@ -10,6 +10,7 @@ import { SharedModule } from './shared.module';
 import { OnlineSelectorPage } from './online-selector/online-selector.page';
 import { FormsModule } from '@angular/forms';
 import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
+import { Deeplinks } from '@ionic-native/deeplinks/ngx';
 
 @NgModule({
   declarations: [AppComponent, OnlineSelectorPage],
@@ -24,6 +25,7 @@ import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Clipboard,
+    Deeplinks,
   ],
   bootstrap: [AppComponent],
 })

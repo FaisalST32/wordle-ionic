@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "~13.0.0",
     "@angular/router": "~13.0.0",
     "@awesome-cordova-plugins/clipboard": "^5.38.0",
+    "@ionic-native/deeplinks": "^5.36.0",
     "@ionic/angular": "^6.0.0",
     "axios": "^0.24.0",
     "cordova-android": "10.1.1",
@@ -56,6 +57,7 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.6",
     "eslint-plugin-prefer-arrow": "1.2.2",
+    "ionic-plugin-deeplinks": "^1.0.24",
     "jasmine-core": "~3.8.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.3.2",
@@ -76,7 +78,25 @@
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-ionic-webview": {},
       "cordova-plugin-ionic-keyboard": {},
-      "cordova-clipboard": {}
+      "cordova-clipboard": {},
+      "ionic-plugin-deeplinks": {
+        "URL_SCHEME": "wordler",
+        "DEEPLINK_SCHEME": "https",
+        "DEEPLINK_HOST": "wordler.faisalrashid.tech",
+        "ANDROID_PATH_PREFIX": "/",
+        "ANDROID_2_PATH_PREFIX": "/",
+        "ANDROID_3_PATH_PREFIX": "/",
+        "ANDROID_4_PATH_PREFIX": "/",
+        "ANDROID_5_PATH_PREFIX": "/",
+        "DEEPLINK_2_SCHEME": " ",
+        "DEEPLINK_2_HOST": " ",
+        "DEEPLINK_3_SCHEME": " ",
+        "DEEPLINK_3_HOST": " ",
+        "DEEPLINK_4_SCHEME": " ",
+        "DEEPLINK_4_HOST": " ",
+        "DEEPLINK_5_SCHEME": " ",
+        "DEEPLINK_5_HOST": " "
+      }
     },
     "platforms": [
       "android"

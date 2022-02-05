@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { JoinGameGuard } from './guards/join-game.guard';
 import { OnlineSelectorPage } from './online-selector/online-selector.page';
 
 const routes: Routes = [
@@ -18,9 +19,17 @@ const routes: Routes = [
     component: OnlineSelectorPage,
   },
   {
+    path: 'join/:gameCode',
+    canActivate: [JoinGameGuard],
+  },
+  {
     path: '',
     redirectTo: 'landing',
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'landing',
   },
 ];
 

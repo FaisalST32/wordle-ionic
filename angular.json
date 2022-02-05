@@ -36,9 +36,9 @@
                 "output": "/"
               },
               {
-                "glob": "**/*",
-                "input": "src/.well-known",
-                "output": ".well-known"
+                "glob": "asset-links.json",
+                "input": "src/.well-known/",
+                "output": "/"
               }
             ],
             "styles": ["src/theme/variables.scss", "src/global.scss"],

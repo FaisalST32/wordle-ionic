@@ -34,6 +34,11 @@
                 "glob": "_redirects",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/.well-known",
+                "output": ".well-known"
               }
             ],
             "styles": ["src/theme/variables.scss", "src/global.scss"],

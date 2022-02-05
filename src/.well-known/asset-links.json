@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "tech.faisalrashid.wordle",
+      "sha256_cert_fingerprints": [
+        "4D:41:73:19:D1:BA:8D:B4:04:47:93:A4:AF:D8:AD:45:44:7A:3F:04:E6:B7:C0:C8:E4:9B:3B:09:9B:3E:D6:2E"
+      ]
+    }
+  }
+]

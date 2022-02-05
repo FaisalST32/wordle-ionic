@@ -3,6 +3,7 @@ import axios from '../axios/axios';
 import { LetterStates, LetterType } from '../components/row/row.component';
 import { UserService } from './user.service';
 
+const GAME_SEARCH_TIMEOUT = 30_000;
 @Injectable({
   providedIn: 'root',
 })
@@ -19,7 +20,7 @@ export class GameService {
     if (this.gameMode === GameMode.online && !this.gameCode) {
       return this.startNewOnlineGame();
     }
-    return this.joinGameWithCode(this.gameCode);
+    return this.startGameWithCode(this.gameCode);
   }
 
   async startNewOnlineGame() {
@@ -28,12 +29,17 @@ export class GameService {
       const createGameData = {
         userId,
       };
-      const gameData = await axios.post('games/join', createGameData);
+      const gameData = await axios.post('games/join-or-create', createGameData);
+      if (gameData.data.status === 'pending') {
+        return this.waitForGameToBegin(gameData.data.gameId);
+      }
       this.gameId = gameData.data.gameId;
       return gameData.data;
     } catch (err) {
       throw new Error(
-        err?.response?.data?.error || 'Something happened. Please try again!'
+        err?.response?.data?.error ||
+          err.message ||
+          'Something happened. Please try again!'
       );
     }
   }
@@ -50,6 +56,34 @@ export class GameService {
     } catch (err) {
       throw new Error(
         err?.response?.data?.error || 'Something happened. Please try again!'
+      );
+    }
+  }
+
+  async startGameWithCode(gameCode: string) {
+    try {
+      const userId = this.userService.getCurrentUserId();
+      const joinGameData = {
+        userId,
+        gameCode: gameCode.toUpperCase(),
+      };
+      const gameData = await axios.post(
+        'games/v2/join-with-code',
+        joinGameData
+      );
+      if (gameData.data.status === 'pending') {
+        return this.waitForGameToBegin(
+          gameData.data.gameId,
+          'No one joined. Please try again.'
+        );
+      }
+      this.gameId = gameData.data.gameId;
+      return gameData.data;
+    } catch (err) {
+      throw new Error(
+        err?.response?.data?.error ||
+          err.message ||
+          'Something happened. Please try again!'
       );
     }
   }
@@ -113,21 +147,33 @@ export class GameService {
     }
   }
 
-  async joinGameWithCode(gameCode: string) {
-    try {
-      const userId = this.userService.getCurrentUserId();
-      const joinGameData = {
-        userId,
-        gameCode: gameCode.toUpperCase(),
-      };
-      const gameData = await axios.post('games/join-with-code', joinGameData);
-      this.gameId = gameData.data.gameId;
-      return gameData.data;
-    } catch (err) {
-      throw new Error(
-        err?.response?.data?.error || 'Something happened. Please try again!'
-      );
-    }
+  private waitForGameToBegin(gameId: string, failMessage?: string) {
+    const checkGameData = {
+      playerId: this.userService.getCurrentUserId(),
+      gameId,
+    };
+    return new Promise((res, rej) => {
+      const interval = setInterval(async () => {
+        const gameData = await axios.post(
+          'games/poll-for-player',
+          checkGameData
+        );
+        if (gameData.data.status === 'started') {
+          clearInterval(interval);
+          clearTimeout(timeout);
+          this.gameId = gameData.data.gameId;
+          res(gameData.data);
+        }
+      }, 2000);
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+        rej(
+          new Error(
+            failMessage || `Couldn't find a game online. Please try again.`
+          )
+        );
+      }, GAME_SEARCH_TIMEOUT);
+    });
   }
 }
 

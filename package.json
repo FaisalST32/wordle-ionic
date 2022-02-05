@@ -82,6 +82,7 @@
       "cordova-plugin-ionic-webview": {},
       "cordova-plugin-ionic-keyboard": {},
       "cordova-clipboard": {},
+      "cordova-plugin-x-socialsharing": {},
       "ionic-plugin-deeplinks": {
         "URL_SCHEME": "wordler",
         "DEEPLINK_SCHEME": "https",
@@ -91,16 +92,15 @@
         "ANDROID_3_PATH_PREFIX": "/",
         "ANDROID_4_PATH_PREFIX": "/",
         "ANDROID_5_PATH_PREFIX": "/",
-        "DEEPLINK_2_SCHEME": " ",
-        "DEEPLINK_2_HOST": " ",
-        "DEEPLINK_3_SCHEME": " ",
-        "DEEPLINK_3_HOST": " ",
-        "DEEPLINK_4_SCHEME": " ",
-        "DEEPLINK_4_HOST": " ",
-        "DEEPLINK_5_SCHEME": " ",
-        "DEEPLINK_5_HOST": " "
-      },
-      "cordova-plugin-x-socialsharing": {}
+        "DEEPLINK_2_SCHEME": "https",
+        "DEEPLINK_2_HOST": "wordler.faisalrashid.tech",
+        "DEEPLINK_3_SCHEME": "https",
+        "DEEPLINK_3_HOST": "wordler.faisalrashid.tech",
+        "DEEPLINK_4_SCHEME": "https",
+        "DEEPLINK_4_HOST": "wordler.faisalrashid.tech",
+        "DEEPLINK_5_SCHEME": "https",
+        "DEEPLINK_5_HOST": "wordler.faisalrashid.tech"
+      }
     },
     "platforms": [
       "android"

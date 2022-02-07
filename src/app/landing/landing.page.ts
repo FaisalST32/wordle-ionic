@@ -24,7 +24,7 @@ export class LandingPage {
       { character: 'R', state: 'mispositioned' },
       { character: 'D', state: 'valid' },
       { character: 'L', state: 'invalid' },
-      { character: 'E', state: 'mispositioned' },
+      { character: 'R', state: 'mispositioned' },
     ],
     [
       { character: 'O', state: 'mispositioned' },

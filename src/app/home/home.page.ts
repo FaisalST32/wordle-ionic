@@ -225,7 +225,7 @@ export class HomePage implements OnDestroy {
         if (this.gameMode === GameMode.solo) {
           const wordle: string = await this.gameService.getCurrentWordle();
           await this.showFinishAlert(
-            `Tough luck! The correct wordle was ${wordle}`,
+            `Tough luck! The correct word was ${wordle}`,
             true
           );
         } else {

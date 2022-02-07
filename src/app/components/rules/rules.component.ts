@@ -13,7 +13,7 @@ import { LetterType } from '../row/row.component';
         </ion-button>
       </div>
 
-      <p>Guess the WORDLE in 6 tries.</p>
+      <p>Guess the WORD in 6 tries.</p>
       <p>
         Each guess must be a valid 5 letter word. Hit the enter button to
         submit.
@@ -24,7 +24,8 @@ import { LetterType } from '../row/row.component';
       </p>
       <hr />
       <h5>For example</h5>
-      <p>If the WORDLE is <strong>CARES</strong></p>
+      <p>If the WORD is <strong>CARES</strong></p>
+      <p>If the WORD is <strong>CARES</strong></p>
       <app-row [letters]="firstRow"></app-row>
       <p>
         The letters <strong>A</strong> and <strong>E</strong> are in the word

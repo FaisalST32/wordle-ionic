@@ -112,7 +112,7 @@ export class OnlineSelectorPage {
   }
 
   shareCode() {
-    const shareText = `Can you beat me at a game of Wordle?
+    const shareText = `Can you beat me at a game of Wordlr?
 Join now at https://wordler.faisalrashid.tech/join/${this.gameCode.toUpperCase()}
 code: ${this.gameCode.toUpperCase()}`;
 

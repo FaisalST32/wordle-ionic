@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-header',
-  template: ` <div class="root" [routerLink]="['/landing']">WORDLE</div> `,
+  template: ` <div class="root" [routerLink]="['/landing']">WORDLR</div> `,
   styles: [
     `
       .root {

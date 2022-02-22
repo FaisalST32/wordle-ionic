@@ -1,7 +1,11 @@
 <ion-content [fullscreen]="true">
   <div class="root">
     <app-header></app-header>
-    <app-row [letters]="row" *ngFor="let row of rows"></app-row>
+    <app-row
+      [letters]="row"
+      *ngFor="let row of rows; let i = index; trackBy: trackById"
+      [showBusy]="i === activeRowIndex && isWaiting"
+    ></app-row>
     <div style="height: 30px"></div>
     <app-keyboard
       *ngFor="let row of keys"

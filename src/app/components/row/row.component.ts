@@ -7,6 +7,9 @@ import { Component, Input } from '@angular/core';
 })
 export class RowComponent {
   @Input() letters: LetterType[] = [];
+  @Input() displayOnly?: boolean = false;
+  @Input() showBusy?: boolean = false;
+  trackByIndex = (index: number, item: LetterType) => index;
 }
 
 export type LetterType = {

@@ -2,6 +2,9 @@
   <app-letter
     [character]="letter.character"
     [state]="letter.state"
-    *ngFor="let letter of letters"
+    *ngFor="let letter of letters; trackBy: trackByIndex; let i = index"
+    [style.transitionDelay]="displayOnly ? '0ms' : '' + i * 3 + '00ms'"
+    [noAnimation]="displayOnly"
+    [isLoading]="showBusy"
   ></app-letter>
 </div>

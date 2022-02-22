@@ -26,13 +26,13 @@ import { LetterType } from '../row/row.component';
       <h5>For example</h5>
       <p>If the WORD is <strong>CARES</strong></p>
       <p>If the WORD is <strong>CARES</strong></p>
-      <app-row [letters]="firstRow"></app-row>
+      <app-row [letters]="firstRow" [displayOnly]="true"></app-row>
       <p>
         The letters <strong>A</strong> and <strong>E</strong> are in the word
         but in the wrong spot. Rest of the letters are not in the word.
       </p>
 
-      <app-row [letters]="secondRow"></app-row>
+      <app-row [letters]="secondRow" [displayOnly]="true"></app-row>
       <p>
         The letters <strong>A</strong> and <strong>E</strong> are in the word
         and in the right spot

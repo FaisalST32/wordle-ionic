@@ -1,0 +1,23 @@
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes colors {
+  0% {
+    background-color: green;
+  }
+  50% {
+    background-color: #3a3a3c;
+  }
+  100% {
+    background-color: #b59f3b;
+  }
+}

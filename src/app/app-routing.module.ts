@@ -20,6 +20,7 @@ const routes: Routes = [
   },
   {
     path: 'join/:gameCode',
+    component: OnlineSelectorPage,
     canActivate: [JoinGameGuard],
   },
   {

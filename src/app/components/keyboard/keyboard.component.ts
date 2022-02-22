@@ -5,14 +5,13 @@ import { LetterType } from '../row/row.component';
   selector: 'app-keyboard',
   template: `
     <div class="keyboard">
-      <app-letter
+      <app-key
         [state]="key.state"
         [character]="key.character"
-        [isKey]="true"
         (clicked)="onClickKey($event)"
         *ngFor="let key of keys"
         style="flex-grow: 1; min-width: 25px;"
-      ></app-letter>
+      ></app-key>
     </div>
   `,
   styles: [

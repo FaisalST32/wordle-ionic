@@ -36,7 +36,11 @@
         <div *ngIf="isCreatingGame" class="centered">
           Your Game Code is ready
         </div>
-        <app-row [letters]="gameCodeRow" style="position: relative"></app-row>
+        <app-row
+          [letters]="gameCodeRow"
+          style="position: relative"
+          [displayOnly]="true"
+        ></app-row>
         <ion-input
           (keyup)="onChangeCode($event)"
           #codeInput

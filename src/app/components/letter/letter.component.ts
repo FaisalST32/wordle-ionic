@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { LetterStates } from '../row/row.component';
 
 @Component({
@@ -6,9 +6,19 @@ import { LetterStates } from '../row/row.component';
   template: `
     <div
       [class]="state"
-      [class.key]="isKey"
       [class.tile]="true"
-      (click)="onClickKey(character)"
+      [class.front]="true"
+      [class.filled]="!!character.length"
+      [class.noAnimation]="noAnimation"
+      [class.isLoading]="isLoading"
+    >
+      {{ character }}
+    </div>
+    <div
+      [class]="state"
+      [class.tile]="true"
+      [class.noAnimation]="noAnimation"
+      [class.back]="true"
     >
       {{ character }}
     </div>
@@ -26,31 +36,46 @@ import { LetterStates } from '../row/row.component';
         font-family: sans-serif;
         font-weight: bold;
         border: solid #ccc 1px;
-        transition: all 200ms ease-out;
+        transition: all 1000ms ease-out;
+        position: relative;
+        transition-delay: inherit;
       }
       .valid {
         background-color: green;
       }
       .invalid {
-        background-color: gray;
+        background-color: #3a3a3c;
       }
       .mispositioned {
         background-color: #b59f3b;
       }
-      .empty {
-        /* background-color: #000; */
+      .back {
+        margin-top: -50px;
+        transform: rotateX(180deg);
+        backface-visibility: hidden;
       }
-      .key {
-        font-size: 14px;
-        border-radius: 5px;
-        cursor: pointer;
-        /* min-width: 10px; */
-        width: auto;
-        height: 40px;
+      .back.back.back.back:not(.empty) {
+        transform: rotateX(360deg);
+        animation: none;
+      }
+      .front.front {
+        transform: rotateX(0deg);
+        backface-visibility: hidden;
+        background-color: transparent;
+      }
+      .front.front.front.front:not(.empty) {
+        transform: rotateX(180deg);
+        animation: none;
+      }
+      .front.filled:not(.isLoading, .noAnimation) {
+        animation: pulse 200ms linear 0s 1;
+      }
+      .noAnimation.noAnimation {
         transition: none;
+        animation: none;
       }
-      .key:active {
-        background-color: lightgray;
+      .isLoading {
+        animation: colors 1000ms linear 0s infinite;
       }
     `,
   ],
@@ -58,10 +83,6 @@ import { LetterStates } from '../row/row.component';
 export class LetterComponent {
   @Input() state: LetterStates = 'valid';
   @Input() character = '';
-  @Input() isKey?: boolean = false;
-  @Output() clicked: EventEmitter<string> = new EventEmitter();
-
-  onClickKey(key: string) {
-    this.clicked.emit(key);
-  }
+  @Input() noAnimation?: boolean = false;
+  @Input() isLoading?: boolean = false;
 }

@@ -19,6 +19,7 @@ import { WordleService } from '../services/wordle.service';
 import { generateEmptyRow, generateInitialKeys } from '../utils/data.utils';
 import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
 import { isRunningApp } from '../utils/ionic.utils';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 
 @Component({
   selector: 'app-home',
@@ -39,6 +40,7 @@ export class HomePage implements OnDestroy {
   opponentPollingInterval: any;
   areKeysEnabled = false;
   isApp: boolean;
+  isWaiting: boolean;
 
   constructor(
     private wordleService: WordleService,
@@ -48,7 +50,7 @@ export class HomePage implements OnDestroy {
     private ref: ChangeDetectorRef,
     private router: Router,
     private toastCtrl: ToastController,
-    private clipboard: Clipboard
+    private socialShare: SocialSharing
   ) {
     this.initializeGame();
     this.router.events.subscribe((event) => {
@@ -197,12 +199,14 @@ export class HomePage implements OnDestroy {
   private async handleEnterKey() {
     try {
       this.disableKeys();
+      this.isWaiting = true;
       const currentRow = this.rows[this.activeRowIndex];
       const isCurrentRowFilled = this.rows[this.activeRowIndex].every(
         (letter) => letter.character !== ''
       );
       if (!isCurrentRowFilled) {
         this.enableKeys();
+        this.isWaiting = false;
         return;
       }
 
@@ -210,6 +214,7 @@ export class HomePage implements OnDestroy {
         .map((letter) => letter.character)
         .join('');
       const rowResp = await this.gameService.postRow(word);
+      this.isWaiting = false;
       const updatedRow = this.createUpdatedRow(rowResp.data.rowResponse, word);
 
       const hasWonGame: boolean = updatedRow.every(
@@ -218,7 +223,7 @@ export class HomePage implements OnDestroy {
       this.rows[this.activeRowIndex] = [...updatedRow];
       this.keys = [...this.updateKeyboard(updatedRow)];
       if (hasWonGame) {
-        await this.showFinishAlert('Yay! You have won.', true);
+        await this.showFinishAlert('Yay! You have won.', true, 2000);
         return;
       }
       if (!hasWonGame && this.activeRowIndex === 5) {
@@ -226,12 +231,14 @@ export class HomePage implements OnDestroy {
           const wordle: string = await this.gameService.getCurrentWordle();
           await this.showFinishAlert(
             `Tough luck! The correct word was ${wordle}`,
-            true
+            true,
+            2000
           );
         } else {
           await this.showFinishAlert(
             `Sorry mate. You couldn't figure it out! Stick around to check if your opponent figures it out?`,
-            true
+            true,
+            2000
           );
         }
 
@@ -244,6 +251,7 @@ export class HomePage implements OnDestroy {
       return;
     } catch (err) {
       this.showAlert(err.message);
+      this.isWaiting = false;
     }
   }
 
@@ -367,7 +375,7 @@ export class HomePage implements OnDestroy {
       .map((row) => row.map((l) => map[l.state]).join(''))
       .join('\n');
     if (this.isApp) {
-      this.clipboard.copy(shareableText);
+      this.socialShare.share(shareableText);
     } else {
       window.navigator.clipboard.writeText(shareableText).then(() => {
         this.toastCtrl
@@ -400,7 +408,11 @@ export class HomePage implements OnDestroy {
       alert.then((al) => al.present());
     });
   }
-  private showFinishAlert(message: string, showShareButton: boolean) {
+  private async showFinishAlert(
+    message: string,
+    showShareButton: boolean,
+    delayInMs?: number
+  ) {
     const buttons: AlertButton[] = [
       {
         text: 'Back Home',
@@ -413,12 +425,19 @@ export class HomePage implements OnDestroy {
         handler: this.shareGame.bind(this),
       });
     }
-    const alert = this.alertCtrl.create({
+    const alert = await this.alertCtrl.create({
       message,
       buttons,
     });
-    alert.then((al) => al.present());
+    if (delayInMs) {
+      await new Promise((res) => {
+        setTimeout(res, delayInMs);
+      });
+    }
+    alert.present();
   }
+
+  trackById = (index: number, item: LetterType[]) => index;
 
   @HostListener('unloaded')
   ngOnDestroy() {

@@ -15,9 +15,7 @@ import {
 } from '@ionic/angular';
 import { LetterStates, LetterType } from '../components/row/row.component';
 import { GameMode, GameService } from '../services/game.service';
-import { WordleService } from '../services/wordle.service';
 import { generateEmptyRow, generateInitialKeys } from '../utils/data.utils';
-import { Clipboard } from '@awesome-cordova-plugins/clipboard/ngx';
 import { isRunningApp } from '../utils/ionic.utils';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 
@@ -43,7 +41,6 @@ export class HomePage implements OnDestroy {
   isWaiting: boolean;
 
   constructor(
-    private wordleService: WordleService,
     private alertCtrl: AlertController,
     private gameService: GameService,
     private loadingCtrl: LoadingController,

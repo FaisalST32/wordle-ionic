@@ -20,12 +20,12 @@
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
     "@angular/router": "~13.0.0",
-    "@awesome-cordova-plugins/clipboard": "^5.38.0",
-    "@awesome-cordova-plugins/social-sharing": "^5.39.0",
+    "@awesome-cordova-plugins/clipboard": "^6.2.0",
+    "@awesome-cordova-plugins/core": "^6.2.0",
+    "@awesome-cordova-plugins/social-sharing": "^6.2.0",
     "@ionic-native/deeplinks": "^5.36.0",
     "@ionic/angular": "^6.0.0",
     "axios": "^0.24.0",
-    "cordova-android": "10.1.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "unique-names-generator": "^4.6.0",
@@ -48,13 +48,14 @@
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "5.3.0",
     "@typescript-eslint/parser": "5.3.0",
+    "cordova-android": "^11.0.0",
     "cordova-clipboard": "^1.3.0",
     "cordova-plugin-device": "2.0.2",
     "cordova-plugin-ionic-keyboard": "^2.0.5",
     "cordova-plugin-ionic-webview": "^5.0.0",
     "cordova-plugin-splashscreen": "5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
-    "cordova-plugin-x-socialsharing": "^6.0.3",
+    "cordova-plugin-x-socialsharing": "^6.0.4",
     "es6-promise-plugin": "^4.2.2",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "2.22.1",
@@ -82,7 +83,6 @@
       "cordova-plugin-ionic-webview": {},
       "cordova-plugin-ionic-keyboard": {},
       "cordova-clipboard": {},
-      "cordova-plugin-x-socialsharing": {},
       "ionic-plugin-deeplinks": {
         "URL_SCHEME": "wordler",
         "DEEPLINK_SCHEME": "https",
@@ -100,7 +100,8 @@
         "DEEPLINK_4_HOST": "wordler.faisalrashid.tech",
         "DEEPLINK_5_SCHEME": "https",
         "DEEPLINK_5_HOST": "wordler.faisalrashid.tech"
-      }
+      },
+      "cordova-plugin-x-socialsharing": {}
     },
     "platforms": [
       "android"

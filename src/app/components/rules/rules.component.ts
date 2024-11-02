@@ -5,7 +5,7 @@ import { LetterType } from '../row/row.component';
 @Component({
   selector: 'app-rules-modal',
   template: `
-    <div class="root">
+    <div class="root safe-area">
       <div class="title">
         <span>How to Play</span>
         <ion-button (click)="dismiss()" fill="clear" size="small">
@@ -25,7 +25,6 @@ import { LetterType } from '../row/row.component';
       <hr />
       <h5>For example</h5>
       <p>If the WORD is <strong>CARES</strong></p>
-      <p>If the WORD is <strong>CARES</strong></p>
       <app-row [letters]="firstRow" [displayOnly]="true"></app-row>
       <p>
         The letters <strong>A</strong> and <strong>E</strong> are in the word
@@ -42,8 +41,8 @@ import { LetterType } from '../row/row.component';
   styles: [
     `
       .root {
-        padding: 20px;
         color: white;
+        padding: 20px;
       }
       p {
         margin: 20px 0;
@@ -52,7 +51,7 @@ import { LetterType } from '../row/row.component';
       }
       ion-button {
         position: absolute;
-        top: 15px;
+        top: var(--ion-safe-area-top, 0);
         right: 0;
       }
       .title {
